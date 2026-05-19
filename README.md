@@ -69,4 +69,4 @@ If your institution’s security policy limits external iframes, or if you want 
 
 This project is open-source and licensed under the **MIT License**. Feel free to fork, modify, and redistribute across your institutions.
 
-* Visual dashboard architecture and minimalist typography guidelines inspired by [Thariq S (HTML Effectiveness)](https://github.com/ThariqS/html-effectiveness).
+Dashboard interface includes modifications of design elements originally created by Thariq S, used under the Apache License 2.0. © 2026 Anthropic PBC (Original Styles) / Modified 2026.
