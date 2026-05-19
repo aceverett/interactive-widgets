@@ -33,7 +33,7 @@ interactive-lms-widgets/
     ├── sequencer-activity/     # Chronological timeline and process sorter
     ├── sorting-activity/       # Bin-classification sorting matrix
     └── this-or-that/           # Binary choice architecture with instant rationales
-'''
+```
 
 ## 📥 How to Use & Embed These Widgets
 
