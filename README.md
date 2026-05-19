@@ -67,6 +67,10 @@ If your institution’s security policy limits external iframes, or if you want 
 
 ## 📄 License & Attribution
 
-This project is open-source and licensed under the **MIT License**. Feel free to fork, modify, and redistribute across your institutions.
+## 📄 License & Attribution
 
-Dashboard interface includes modifications of design elements originally created by Thariq S, used under the Apache License 2.0. © 2026 Anthropic PBC (Original Styles) / Modified 2026.
+The original interactive learning widgets contained within the `widgets/` directory are licensed under the **MIT License** and are free to use, modify, and redistribute.
+
+The central showcase dashboard (`index.html`) and associated styling include modifications of layout design elements originally created by [Thariq S (HTML Effectiveness)](https://github.com/ThariqS/html-effectiveness), used under the **Apache License 2.0**. 
+
+A copy of the Apache 2.0 License can be found at: http://www.apache.org/licenses/LICENSE-2.0
