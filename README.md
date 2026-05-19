@@ -67,8 +67,6 @@ If your institution’s security policy limits external iframes, or if you want 
 
 ## 📄 License & Attribution
 
-## 📄 License & Attribution
-
 The original interactive learning widgets contained within the `widgets/` directory are licensed under the **MIT License** and are free to use, modify, and redistribute.
 
 The central showcase dashboard (`index.html`) and associated styling include modifications of layout design elements originally created by [Thariq S (HTML Effectiveness)](https://github.com/ThariqS/html-effectiveness), used under the **Apache License 2.0**. 
