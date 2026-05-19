@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>This or That: Rules & Norms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-gray: #4b4b4b;
+            --accent-orange: #ff8200;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .header-bg { background-color: var(--primary-gray); }
+        .accent-border { border-color: var(--accent-orange); }
+        .btn-choice { 
+            background-color: var(--primary-gray); 
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn-choice:hover { 
+            background-color: #333333;
+            transform: translateY(-2px);
+        }
+        .orange-feedback {
+            background-color: var(--accent-orange);
+            color: #000000; /* Contrast rule: black text on orange */
+        }
+        .progress-bar-fill {
+            background-color: var(--accent-orange);
+            transition: width 0.4s ease-in-out;
+        }
+        .card-animation {
+            transition: all 0.5s ease;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="game-container" class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="header-bg p-6 text-center">
+            <h1 class="text-white text-2xl font-bold uppercase tracking-wide">
+                🤔 This or That? ⚖️
+            </h1>
+            <p class="text-gray-300 text-sm mt-1">Formal Rules vs. Informal Norms</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div id="progress" class="progress-bar-fill h-full" style="width: 0%"></div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-8">
+            <div id="question-view">
+                <div id="scenario-card" class="card-animation border-l-8 accent-border bg-gray-50 p-6 mb-8 rounded-r-lg shadow-sm flex items-start gap-4">
+                    <div id="scenario-icon" class="text-3xl mt-1"></div>
+                    <p id="scenario-text" class="text-lg text-gray-700 italic font-medium leading-relaxed flex-1">
+                        <!-- Scenario text injects here -->
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="checkAnswer('Formal')" class="btn-choice text-white py-4 px-6 rounded-lg font-bold text-lg shadow-md flex items-center justify-center gap-2">
+                        📜 Formal Rule
+                    </button>
+                    <button onclick="checkAnswer('Informal')" class="btn-choice text-white py-4 px-6 rounded-lg font-bold text-lg shadow-md flex items-center justify-center gap-2">
+                        🤝 Informal Norm
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback" class="hidden fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+                <div id="feedback-content" class="orange-feedback p-8 rounded-2xl shadow-2xl text-center transform scale-110">
+                    <h2 id="feedback-title" class="text-3xl font-black mb-2"></h2>
+                    <p id="feedback-msg" class="font-bold"></p>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="results-view" class="hidden text-center py-10">
+                <div class="text-6xl mb-4">🏆</div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Activity Complete!</h2>
+                <div class="text-6xl font-black text-gray-700 mb-6">
+                    <span id="score-display">0</span> / <span id="total-display">0</span>
+                </div>
+                <p id="final-remark" class="text-gray-600 mb-8 px-4 font-medium"></p>
+                <button onclick="resetGame()" class="bg-gray-800 hover:bg-black text-white px-10 py-3 rounded-full font-bold transition">
+                    🔄 Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = [
+            { text: "A government agency's requirement that all grant applications must be submitted via a specific online portal by 5:00 PM.", type: "Formal", icon: "🏛️" },
+            { text: "The long-standing tradition of politicians shaking hands and sharing a meal after a public debate to show mutual respect.", type: "Informal", icon: "🤝" },
+            { text: "The U.S. Constitution's 19th Amendment granting women the right to vote.", type: "Formal", icon: "🗳️" },
+            { text: "A local city council's zoning regulation that prohibits building commercial structures in residential neighborhoods.", type: "Formal", icon: "🏘️" },
+            { text: "The expectation that senior members of a legislative committee speak first during a private deliberation.", type: "Informal", icon: "🤫" },
+            { text: "A state law requiring all drivers to wear seatbelts while operating a vehicle.", type: "Formal", icon: "🚗" },
+            { text: "The unspoken agreement between rival political staffers to not discuss work during their shared gym hour.", type: "Informal", icon: "🏋️‍♂️" }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+
+        function init() {
+            currentIdx = 0;
+            score = 0;
+            updateCard();
+            document.getElementById('question-view').classList.remove('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+        }
+
+        function updateCard() {
+            const progress = (currentIdx / scenarios.length) * 100;
+            document.getElementById('progress').style.width = progress + "%";
+            document.getElementById('scenario-icon').innerText = scenarios[currentIdx].icon;
+            document.getElementById('scenario-text').innerText = scenarios[currentIdx].text;
+        }
+
+        function checkAnswer(choice) {
+            const correct = scenarios[currentIdx].type === choice;
+            if (correct) score++;
+
+            showFeedback(correct);
+
+            setTimeout(() => {
+                currentIdx++;
+                if (currentIdx < scenarios.length) {
+                    updateCard();
+                } else {
+                    showResults();
+                }
+            }, 1200);
+        }
+
+        function showFeedback(isCorrect) {
+            const overlay = document.getElementById('feedback');
+            const title = document.getElementById('feedback-title');
+            const msg = document.getElementById('feedback-msg');
+
+            title.innerText = isCorrect ? "✅ CORRECT!" : "❌ INCORRECT";
+            msg.innerText = isCorrect ? "+1 Point" : "Keep going!";
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 1000);
+        }
+
+        function showResults() {
+            document.getElementById('progress').style.width = "100%";
+            document.getElementById('question-view').classList.add('hidden');
+            document.getElementById('results-view').classList.remove('hidden');
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('total-display').innerText = scenarios.length;
+
+            const finalRemarkText = score === scenarios.length 
+                ? "✨ Masterful! You clearly understand the difference between institutional structures and social norms." 
+                : "Good effort! Remember: 📜 Formal rules are written and mandated, while 🤝 informal norms are unwritten traditions.";
+            
+            document.getElementById('final-remark').innerText = finalRemarkText;
+        }
+
+        function resetGame() {
+            init();
+        }
+
+        // Add icons to the answer selection array to be used when generating scenario object
+        // Updated scenarios array above already includes icons
+
+        init();
+    </script>
+</body>
+</html>

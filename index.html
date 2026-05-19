@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Interactive Widgets for LMS</title>
+    <title>Instructional Design Interactive Registry</title>
     <style>
         :root {
-            /* Thariq-inspired Editorial Palette with UTK Brand Accent Alignment */
+            /* Thariq-inspired Editorial Palette + UTK Brand Accents */
             --ivory:  #FAF9F5;
             --paper:  #FFFFFF;
             --slate:  #141413;
@@ -40,6 +40,7 @@
             padding: 80px 0 56px;
             border-bottom: 1.5px solid var(--g300);
             margin-bottom: 12px;
+            position: relative;
         }
 
         .eyebrow {
@@ -82,6 +83,30 @@
             max-width: 620px;
         }
 
+        /* ── Table of Contents Navigation ─────── */
+        nav.toc {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 26px 0 0;
+        }
+        nav.toc a {
+            font-size: 12.5px;
+            padding: 7px 14px;
+            border: 1.5px solid var(--g300);
+            border-radius: 999px;
+            text-decoration: none;
+            color: var(--g700);
+            background: var(--paper);
+            transition: border-color 120ms, color 120ms, background 120ms;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+        nav.toc a .n { font-family: var(--mono); font-size: 10px; color: var(--g500); }
+        nav.toc a:hover { border-color: var(--slate); color: var(--slate); }
+        nav.toc a:hover .n { color: var(--utk-orange); }
+
         /* ── Sections ──────────────────────────── */
         section {
             margin-top: 72px;
@@ -109,6 +134,15 @@
             font-size: 27px;
             margin: 0;
             letter-spacing: -0.012em;
+        }
+
+        .sec-head .count {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--g500);
+            background: var(--g100);
+            padding: 2px 8px;
+            border-radius: 999px;
         }
 
         .sec-intro {
@@ -141,7 +175,6 @@
             position: relative;
         }
 
-        /* Preview Thumbnail block matching Thariq's geometric placeholders */
         .thumb {
             height: 132px;
             background: var(--g100);
@@ -154,6 +187,7 @@
             font-size: 11px;
             color: var(--g500);
             letter-spacing: 0.05em;
+            transition: background 150ms ease, color 150ms ease;
         }
 
         .card-link {
@@ -162,7 +196,6 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            transition: background-color 150ms ease;
         }
 
         .card-link:hover .thumb {
@@ -254,7 +287,6 @@
             border-color: var(--slate);
         }
 
-        /* Hidden code element stores used for script execution copying */
         .snippet-vault { display: none; }
 
         /* ── Footer ───────────────────────────── */
@@ -270,55 +302,137 @@
             font-size: 13px;
             color: var(--g500);
         }
-
         footer .k { font-family: var(--serif); font-style: italic; color: var(--g700); font-size: 15px; }
-</style>
+    </style>
 </head>
 <body>
 <div class="wrap">
 
     <header class="masthead">
         <div class="eyebrow">Gemini Interactive Generator Hub</div>
-        <h1>Interactive HTML <em>Widgets</em> for LMS</h1>
+        <h1>The unreasonable <em>effectiveness</em> of HTML in the LMS</h1>
         <p class="intro">
-            A centralized registry of uncompromised, self-contained interactive learning objects. Built cleanly with semantic architecture, accessible design elements, and optimized for zero-dependency portability. Open any asset to preview, or copy codes natively below.
+            A centralized registry of self-contained interactive learning objects. Built with pure semantic HTML architecture and accessible layouts to ensure seamless inclusion via standard iframes.
         </p>
+        <nav class="toc">
+            <a href="#assessment">Active Assessment & Practice <span class="n">2</span></a>
+            <a href="#sorting">Classification & Order <span class="n">2</span></a>
+            <a href="#retention">Review & Retention <span class="n">1</span></a>
+        </nav>
     </header>
 
-    <section id="matching">
+    <section id="assessment">
         <div class="sec-head">
             <span class="idx">01</span>
-            <h2>Active Practice & Assessment</h2>
+            <h2>Active Assessment & Practice</h2>
+            <span class="count">2 widgets</span>
         </div>
         <p class="sec-intro">
-            Interactive structures that challenge cognitive acquisition paths. Fully divorced from tracking vendor overhead and designed for seamless multi-platform inclusion.
+            Formative interactive check-points designed to challenge cognitive parsing paths while eliminating data-tracking overhead dependencies.
         </p>
         
         <div class="grid">
-            
             <div class="card">
-                <a class="card-link" href="widgets/matching-activity/index.html" target="_blank" aria-label="Open standalone Matching Activity in a new tab">
+                <a class="card-link" href="widgets/matching-activity/index.html" target="_blank">
+                    <div class="thumb">[ 📋 TERM ] &nbsp; ─── &nbsp; [ 🔍 DEF ]</div>
                     <div class="body">
                         <div class="title">Two-Column Matching</div>
-                        <div class="desc">Features active-state array shuffling, keyboard-accessible interaction hooks, immediate visual match/error validation loops, and responsive design states.</div>
-                        <div class="file">
-                            <span>/widgets/matching-activity/</span>
-                            <span class="arrow">→</span>
-                        </div>
+                        <div class="desc">Active-state random array configuration tracking. Features responsive column mapping, focus selection visual loops, and instantaneous validation feedback.</div>
+                        <div class="file"><span>/widgets/matching-activity/</span><span class="arrow">→</span></div>
                     </div>
                 </a>
-                
                 <div class="action-bar">
-                    <button class="btn-copy" onclick="copySnippet(this, 'matching-html')" aria-label="Copy pure HTML code to clipboard">
-                        📋 Copy HTML
-                    </button>
-                    <button class="btn-copy" onclick="copySnippet(this, 'matching-iframe')" aria-label="Copy standard LMS iframe embed code to clipboard">
-                        🌐 Copy iframe
-                    </button>
+                    <button class="btn-copy" onclick="copySnippet(this, 'matching-activity')">📋 Copy HTML</button>
+                    <button class="btn-copy" onclick="copyIframe(this, 'matching-activity', '620px')">🌐 Copy iframe</button>
                 </div>
             </div>
 
+            <div class="card">
+                <a class="card-link" href="widgets/this-or-that/index.html" target="_blank">
+                    <div class="thumb">[ ◀ Option A ] &nbsp; ⚖ &nbsp; [ Option B ▶ ]</div>
+                    <div class="body">
+                        <div class="title">This or That Choices</div>
+                        <div class="desc">A binary decision architecture. Challenges students to choose between competing criteria, surfacing follow-up case context or rationale text upon selection.</div>
+                        <div class="file"><span>/widgets/this-or-that/</span><span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <div class="action-bar">
+                    <button class="btn-copy" onclick="copySnippet(this, 'this-or-that')">📋 Copy HTML</button>
+                    <button class="btn-copy" onclick="copyIframe(this, 'this-or-that', '500px')">🌐 Copy iframe</button>
+                </div>
             </div>
+        </div>
+    </section>
+
+    <section id="sorting">
+        <div class="sec-head">
+            <span class="idx">02</span>
+            <h2>Classification & Sequencing</h2>
+            <span class="count">2 widgets</span>
+        </div>
+        <p class="sec-intro">
+            Structural frameworks targeting taxonomic organization, process alignment checks, and relationship mapping behaviors.
+        </p>
+        
+        <div class="grid">
+            <div class="card">
+                <a class="card-link" href="widgets/sorting-activity/index.html" target="_blank">
+                    <div class="thumb">[ Bucket 1 ] &nbsp; 📥 &nbsp; [ Bucket 2 ]</div>
+                    <div class="body">
+                        <div class="title">Bin Sorting Matrix</div>
+                        <div class="desc">Categorization engine prompting users to classify conceptual items into defined categories. Includes error handling and clear completion triggers.</div>
+                        <div class="file"><span>/widgets/sorting-activity/</span><span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <div class="action-bar">
+                    <button class="btn-copy" onclick="copySnippet(this, 'sorting-activity')">📋 Copy HTML</button>
+                    <button class="btn-copy" onclick="copyIframe(this, 'sorting-activity', '580px')">🌐 Copy iframe</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <a class="card-link" href="widgets/sequencer-activity/index.html" target="_blank">
+                    <div class="thumb">[ 1 ] ➔ [ 2 ] ➔ [ 3 ] ➔ [ 4 ]</div>
+                    <div class="body">
+                        <div class="title">Process Sorter & Sequencer</div>
+                        <div class="desc">Arrangement interface designed for timeline sorting, step-by-step methodology structures, or chronological process checking.</div>
+                        <div class="file"><span>/widgets/sequencer-activity/</span><span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <div class="action-bar">
+                    <button class="btn-copy" onclick="copySnippet(this, 'sequencer-activity')">📋 Copy HTML</button>
+                    <button class="btn-copy" onclick="copyIframe(this, 'sequencer-activity', '540px')">🌐 Copy iframe</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="retention">
+        <div class="sec-head">
+            <span class="idx">03</span>
+            <h2>Review & Retention</h2>
+            <span class="count">1 widget</span>
+        </div>
+        <p class="sec-intro">
+            Self-paced studying elements maximizing individual cognitive recall paths using lightweight 3D animation transforms.
+        </p>
+        
+        <div class="grid">
+            <div class="card">
+                <a class="card-link" href="widgets/flashcards/index.html" target="_blank">
+                    <div class="thumb">╭──────╮ 🔄 ╭──────╮</div>
+                    <div class="body">
+                        <div class="title">CSS Flip Flashcards</div>
+                        <div class="desc">A fast, accessible card layout featuring spatial 3D rotation animations. Tracks deck progression and includes semantic audio/screen reader indicators.</div>
+                        <div class="file"><span>/widgets/flashcards/</span><span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <div class="action-bar">
+                    <button class="btn-copy" onclick="copySnippet(this, 'flashcards')">📋 Copy HTML</button>
+                    <button class="btn-copy" onclick="copyIframe(this, 'flashcards', '480px')">🌐 Copy iframe</button>
+                </div>
+            </div>
+        </div>
     </section>
 
     <footer>
@@ -327,41 +441,33 @@
     </footer>
 </div>
 
-<div class="snippet-vault">
-    <template id="matching-iframe">`<iframe src="${window.location.origin}${window.location.pathname.replace('index.html', '')}widgets/matching-activity/" width="100%" height="620px" style="border: 0; display: block;" title="Interactive Matching Activity" allow="clipboard-write"></iframe>`</template>
-
-    <template id="matching-html"></template>
-</div>
-
 <script>
-    function copySnippet(button, templateId) {
-        const template = document.getElementById(templateId);
-        if (!template) return;
+    // Dynamically generates the absolute paths for deployment mapping regardless of server context
+    function getWidgetUrl(folder) {
+        const rootPath = window.location.origin + window.location.pathname.replace('index.html', '');
+        return `${rootPath}widgets/${folder}/index.html`;
+    }
 
-        let copyText = '';
-        
-        if (templateId === 'matching-iframe') {
-            // Evaluates template strings dynamically to pull correct domain routing paths safely
-            copyText = eval(template.innerHTML);
-        } else if (templateId === 'matching-html') {
-            // For raw widget HTML copy actions, it fetches the actual file structure via a network fetch check 
-            // or falls back instantly to instructions
-            const widgetPath = 'widgets/matching-activity/index.html';
-            fetch(widgetPath)
-                .then(response => {
-                    if (response.ok) return response.text();
-                    throw new Error('Fallback required');
-                })
-                .then(text => {
-                    executeClipboardWrite(button, text);
-                })
-                .catch(() => {
-                    executeClipboardWrite(button, `\n`);
-                });
-            return;
-        }
+    function copyIframe(button, folder, targetHeight) {
+        const url = getWidgetUrl(folder);
+        const iframeString = `<iframe src="${url}" width="100%" height="${targetHeight}" style="border: 0; display: block;" title="Interactive Active Learning Object" allow="clipboard-write"></iframe>`;
+        executeClipboardWrite(button, iframeString);
+    }
 
-        executeClipboardWrite(button, copyText);
+    function copySnippet(button, folder) {
+        const widgetPath = `widgets/${folder}/index.html`;
+        fetch(widgetPath)
+            .then(response => {
+                if (response.ok) return response.text();
+                throw new Error();
+            })
+            .then(text => {
+                executeClipboardWrite(button, text);
+            })
+            .catch(() => {
+                // Secure fallback message if asset is locally barred
+                executeClipboardWrite(button, `\n`);
+            });
     }
 
     function executeClipboardWrite(button, text) {
@@ -375,7 +481,7 @@
                 button.classList.remove('copied');
             }, 1800);
         }).catch(err => {
-            console.error('Failed to copy text: ', err);
+            console.error('Copy failure: ', err);
         });
     }
 </script>

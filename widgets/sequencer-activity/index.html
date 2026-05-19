@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence Sorter - Laundry Steps</title>
+    <!-- 
+        DEVELOPER NOTES:
+        To customize the items, modify the 'sequenceData' array below.
+        'id' must be unique. 
+        'text' is the display content. 
+        'correctRank' is the 1-based index of the final order.
+    -->
+    <script>
+        const sequenceData = [
+            { id: "step-1", text: "Sort clothes by color and fabric", correctRank: 1 },
+            { id: "step-2", text: "Add detergent to the washing machine", correctRank: 2 },
+            { id: "step-3", text: "Load the clothes", correctRank: 3 },
+            { id: "step-4", text: "Select the wash cycle and start the machine", correctRank: 4 },
+            { id: "step-5", text: "Transfer clothes to the dryer after washing", correctRank: 5 },
+            { id: "step-6", text: "Start the dryer", correctRank: 6 },
+            { id: "step-7", text: "Remove and fold clothes", correctRank: 7 }
+        ];
+    </script>
+
+    <!-- External Dependency for Smooth Dragging (Canvas-safe CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <style>
+        :root {
+            --accent: #ff8200;
+            --dark-gray: #4b4b4b;
+            --white: #ffffff;
+            --correct: #28a745;
+            --incorrect: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--white);
+            color: var(--dark-gray);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--dark-gray);
+            margin-top: 0;
+        }
+
+        .instruction-text {
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        /* Toggle Button Styles */
+        .btn-toggle {
+            background-color: #f0f0f0;
+            border: 2px solid var(--dark-gray);
+            color: var(--dark-gray);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle:hover {
+            background-color: var(--dark-gray);
+            color: var(--white);
+        }
+
+        /* List and Item Styles */
+        #sortable-list, #text-version {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sort-item, .form-item {
+            background: var(--white);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            cursor: grab;
+            transition: border-color 0.2s;
+        }
+
+        .sort-item:active { cursor: grabbing; }
+
+        .rank-badge {
+            background: #eee;
+            color: var(--dark-gray);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Form Version Specifics */
+        .form-item {
+            cursor: default;
+            justify-content: space-between;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--dark-gray);
+            width: 60%;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-check {
+            background-color: var(--accent);
+            color: var(--dark-gray); /* ACCESSIBILITY: No white text on orange */
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn-check:hover { filter: brightness(90%); }
+
+        .feedback-text {
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-height: 1.5em;
+        }
+
+        /* State Classes */
+        .hidden { display: none; }
+        .correct { border-color: var(--correct) !important; }
+        .incorrect { border-color: var(--incorrect) !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button id="mode-toggle" class="btn-toggle" aria-live="polite">Switch to Text Version</button>
+    
+    <h1>Order the steps of Doing Laundry</h1>
+    <p class="instruction-text">Use drag-and-drop or switch to the text version for screen reader compatibility.</p>
+
+    <!-- Drag and Drop Interface -->
+    <div id="drag-interface">
+        <ul id="sortable-list">
+            <!-- Items injected by JS -->
+        </ul>
+    </div>
+
+    <!-- Accessible Form Interface -->
+    <div id="text-interface" class="hidden">
+        <form id="sequence-form">
+            <div id="form-container">
+                <!-- Selects injected by JS -->
+            </div>
+        </form>
+    </div>
+
+    <div class="controls">
+        <button id="check-btn" class="btn-check">Check My Order</button>
+        <div id="feedback" class="feedback-text" aria-live="polite"></div>
+    </div>
+</div>
+
+<script>
+    const sortableList = document.getElementById('sortable-list');
+    const formContainer = document.getElementById('form-container');
+    const modeToggle = document.getElementById('mode-toggle');
+    const dragInterface = document.getElementById('drag-interface');
+    const textInterface = document.getElementById('text-interface');
+    const feedback = document.getElementById('feedback');
+    const checkBtn = document.getElementById('check-btn');
+
+    let isTextMode = false;
+
+    // Shuffle helper
+    const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
+    const shuffledData = shuffle(sequenceData);
+
+    // Initial Render
+    function init() {
+        // Build Drag/Drop
+        shuffledData.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.className = 'sort-item';
+            li.setAttribute('data-id', item.id);
+            li.innerHTML = `<span class="rank-badge">${index + 1}</span> <span>${item.text}</span>`;
+            sortableList.appendChild(li);
+        });
+
+        // Initialize SortableJS
+        new Sortable(sortableList, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: updateRankBadges
+        });
+
+        // Build Text Form
+        sequenceData.forEach((_, index) => {
+            const stepNum = index + 1;
+            const div = document.createElement('div');
+            div.className = 'form-item';
+            
+            const label = document.createElement('label');
+            label.setAttribute('for', `step-${stepNum}`);
+            label.innerText = `Step ${stepNum}:`;
+
+            const select = document.createElement('select');
+            select.id = `step-${stepNum}`;
+            select.innerHTML = `<option value="">-- Select Step --</option>` + 
+                shuffledData.map(item => `<option value="${item.id}">${item.text}</option>`).join('');
+
+            div.appendChild(label);
+            div.appendChild(select);
+            formContainer.appendChild(div);
+        });
+    }
+
+    function updateRankBadges() {
+        const items = sortableList.querySelectorAll('.sort-item');
+        items.forEach((item, index) => {
+            item.querySelector('.rank-badge').innerText = index + 1;
+        });
+    }
+
+    // Toggle Logic
+    modeToggle.addEventListener('click', () => {
+        isTextMode = !isTextMode;
+        dragInterface.classList.toggle('hidden');
+        textInterface.classList.toggle('hidden');
+        modeToggle.innerText = isTextMode ? "Switch to Drag & Drop" : "Switch to Text Version";
+        feedback.innerText = "";
+        clearBorders();
+    });
+
+    function clearBorders() {
+        document.querySelectorAll('.sort-item, select').forEach(el => {
+            el.classList.remove('correct', 'incorrect');
+        });
+    }
+
+    // Logic: Check Order
+    checkBtn.addEventListener('click', () => {
+        let score = 0;
+        clearBorders();
+
+        if (isTextMode) {
+            const selects = formContainer.querySelectorAll('select');
+            selects.forEach((select, index) => {
+                const stepNum = index + 1;
+                const selectedId = select.value;
+                const originalItem = sequenceData.find(i => i.id === selectedId);
+
+                if (originalItem && originalItem.correctRank === stepNum) {
+                    score++;
+                    select.classList.add('correct');
+                } else if (selectedId !== "") {
+                    select.classList.add('incorrect');
+                }
+            });
+        } else {
+            const items = sortableList.querySelectorAll('.sort-item');
+            items.forEach((item, index) => {
+                const stepNum = index + 1;
+                const itemId = item.getAttribute('data-id');
+                const originalItem = sequenceData.find(i => i.id === itemId);
+
+                if (originalItem.correctRank === stepNum) {
+                    score++;
+                    item.classList.add('correct');
+                } else {
+                    item.classList.add('incorrect');
+                }
+            });
+        }
+
+        feedback.innerText = `${score} out of ${sequenceData.length} correct.`;
+        feedback.style.color = score === sequenceData.length ? "var(--correct)" : "var(--dark-gray)";
+    });
+
+    init();
+</script>
+
+</body>
+</html>

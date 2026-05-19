@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorization Activity</title>
+    <style>
+        :root {
+            --primary: #ff8200;
+            --dark: #4b4b4b;
+            --white: #ffffff;
+            --correct: #d4edda;
+            --incorrect: #f8d7da;
+            --border-correct: #28a745;
+            --border-incorrect: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: var(--white);
+            padding: 15px;
+            border-left: 5px solid var(--primary);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            color: var(--dark);
+        }
+
+        .btn-toggle { background: #e0e0e0; }
+        .btn-check { background: var(--primary); }
+        .btn-reset { background: #ccc; display: none; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Visual Mode Styles */
+        #visual-mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        #item-deck {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            min-height: 100px;
+            width: 100%;
+            padding: 20px;
+            background: #eee;
+            border-radius: 8px;
+            border: 2px dashed #ccc;
+        }
+
+        .bin-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .bin {
+            flex: 1;
+            min-width: 250px;
+            min-height: 200px;
+            background: var(--white);
+            border: 2px solid var(--dark);
+            border-radius: 8px;
+            padding: 15px;
+            transition: background 0.3s;
+        }
+
+        .bin h3 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .item-card {
+            background: var(--white);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: grab;
+            max-width: 200px;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+
+        .item-card.dragging { opacity: 0.5; }
+
+        /* Text Mode Styles */
+        #text-mode {
+            display: none;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .text-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .text-item-row select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid var(--dark);
+        }
+
+        /* Feedback Styles */
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            padding: 10px;
+            display: none;
+        }
+
+        .correct { background-color: var(--correct) !important; border-color: var(--border-correct) !important; }
+        .incorrect { background-color: var(--incorrect) !important; border-color: var(--border-incorrect) !important; }
+
+        @media (max-width: 600px) {
+            .bin { min-width: 100%; }
+            .text-item-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Categorize the items below into the correct bins.</h2>
+        <p>Use the toggle for a screen-reader-friendly version.</p>
+    </header>
+
+    <div class="controls">
+        <button id="toggle-mode" class="btn-toggle" onclick="toggleMode()">Switch to Text Version</button>
+        <button id="check-work" class="btn-check" onclick="checkWork()">Check My Work</button>
+        <button id="reset-btn" class="btn-reset" onclick="resetActivity()">Try Again</button>
+    </div>
+
+    <div id="feedback-text" class="feedback-summary"></div>
+
+    <!-- Visual Drag and Drop Interface -->
+    <div id="visual-mode">
+        <div id="item-deck" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <!-- Items populated by JS -->
+        </div>
+
+        <div class="bin-container" id="bin-wrap">
+            <!-- Bins populated by JS -->
+        </div>
+    </div>
+
+    <!-- Accessible Text-Only Interface -->
+    <div id="text-mode">
+        <div id="text-list">
+            <!-- Table/List populated by JS -->
+        </div>
+    </div>
+
+    <script>
+        /*******************************************************
+         * CONFIGURATION
+         * Update the categories and items arrays below.
+         *******************************************************/
+        const categories = [
+            { id: "journal", name: "Peer-reviewed journal articles" },
+            { id: "books", name: "Books (scholarly monographs)" },
+            { id: "media", name: "Popular/media sources" }
+        ];
+
+        const items = [
+            { id: 1, text: "Article published in The Journal of Educational Psychology", category: "journal" },
+            { id: 2, text: "Chapter from a university press book on medieval history", category: "books" },
+            { id: 3, text: "New York Times news article", category: "media" },
+            { id: 4, text: "Peer-reviewed article from Nature", category: "journal" },
+            { id: 5, text: "Scholarly monograph published by Oxford University Press", category: "books" },
+            { id: 6, text: "Magazine article from Time", category: "media" },
+            { id: 7, text: "Article from The American Historical Review", category: "journal" },
+            { id: 8, text: "Book published by Cambridge University Press", category: "books" },
+            { id: 9, text: "Blog post on a news website", category: "media" }
+        ];
+
+        /*******************************************************
+         * LOGIC
+         *******************************************************/
+        let isVisualMode = true;
+
+        function init() {
+            const deck = document.getElementById('item-deck');
+            const binWrap = document.getElementById('bin-wrap');
+            const textList = document.getElementById('text-list');
+            
+            // Clear existing
+            deck.innerHTML = '';
+            binWrap.innerHTML = '';
+            textList.innerHTML = '';
+
+            // Shuffle items for variety
+            const shuffledItems = [...items].sort(() => Math.random() - 0.5);
+
+            // Create Visual Bins
+            categories.forEach(cat => {
+                const bin = document.createElement('div');
+                bin.className = 'bin';
+                bin.id = `bin-${cat.id}`;
+                bin.setAttribute('data-category', cat.id);
+                bin.ondrop = drop;
+                bin.ondragover = allowDrop;
+                bin.innerHTML = `<h3>${cat.name}</h3>`;
+                binWrap.appendChild(bin);
+            });
+
+            // Create Items (Visual and Text)
+            shuffledItems.forEach(item => {
+                // Visual Card
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.id = `item-${item.id}`;
+                card.draggable = true;
+                card.innerText = item.text;
+                card.setAttribute('data-answer', item.category);
+                card.ondragstart = drag;
+                deck.appendChild(card);
+
+                // Text Row
+                const row = document.createElement('div');
+                row.className = 'text-item-row';
+                row.innerHTML = `
+                    <span>${item.text}</span>
+                    <select id="select-${item.id}" data-answer="${item.category}">
+                        <option value="">-- Select Bin --</option>
+                        ${categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
+                `;
+                textList.appendChild(row);
+            });
+        }
+
+        // Drag and Drop Core
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            let target = ev.target;
+            
+            // Ensure drop goes into bin or deck, not inside an item card
+            while (target && !target.classList.contains('bin') && target.id !== 'item-deck') {
+                target = target.parentElement;
+            }
+            if (target) target.appendChild(draggedElement);
+        }
+
+        function toggleMode() {
+            isVisualMode = !isVisualMode;
+            document.getElementById('visual-mode').style.display = isVisualMode ? 'flex' : 'none';
+            document.getElementById('text-mode').style.display = isVisualMode ? 'none' : 'block';
+            document.getElementById('toggle-mode').innerText = isVisualMode ? 'Switch to Text Version' : 'Switch to Visual Version';
+        }
+
+        function checkWork() {
+            let score = 0;
+            const total = items.length;
+
+            if (isVisualMode) {
+                // Check Visual Mode
+                document.querySelectorAll('.bin').forEach(bin => {
+                    const binCat = bin.getAttribute('data-category');
+                    const cards = bin.querySelectorAll('.item-card');
+                    cards.forEach(card => {
+                        if (card.getAttribute('data-answer') === binCat) {
+                            card.classList.add('correct');
+                            score++;
+                        } else {
+                            card.classList.add('incorrect');
+                        }
+                    });
+                });
+            } else {
+                // Check Text Mode
+                document.querySelectorAll('.text-item-row select').forEach(select => {
+                    const answer = select.getAttribute('data-answer');
+                    if (select.value === answer) {
+                        select.parentElement.classList.add('correct');
+                        score++;
+                    } else {
+                        select.parentElement.classList.add('incorrect');
+                    }
+                });
+            }
+
+            const feedback = document.getElementById('feedback-text');
+            feedback.style.display = 'block';
+            feedback.innerText = `Summary: ${score} / ${total} items correctly categorized.`;
+            document.getElementById('check-work').style.display = 'none';
+            document.getElementById('reset-btn').style.display = 'inline-block';
+        }
+
+        function resetActivity() {
+            document.getElementById('feedback-text').style.display = 'none';
+            document.getElementById('check-work').style.display = 'inline-block';
+            document.getElementById('reset-btn').style.display = 'none';
+            init();
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>
