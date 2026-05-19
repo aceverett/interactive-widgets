@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Matching Activity</title>
+    <style>
+        :root {
+            --primary-orange: #ff8200;
+            --dark-grey: #4b4b4b;
+            --white: #ffffff;
+            --light-grey: #f4f4f4;
+            --error-red: #fee2e2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--white);
+            color: var(--dark-grey);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .activity-card {
+            width: 100%;
+            max-width: 800px;
+            background: var(--white);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .brand-divider {
+            height: 4px;
+            background-color: var(--primary-orange);
+            border: none;
+            width: 60px;
+            margin: 0 auto 30px auto;
+            border-radius: 2px;
+        }
+
+        .instructions {
+            text-align: center;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .match-item {
+            background: var(--white);
+            border: 2px solid var(--dark-grey);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .match-item:hover {
+            border-color: var(--primary-orange);
+            background-color: #fffaf5;
+        }
+
+        .match-item.selected {
+            border-color: var(--primary-orange);
+            background-color: #fff5eb;
+            box-shadow: 0 0 0 1px var(--primary-orange);
+        }
+
+        .match-item.correct {
+            background-color: var(--light-grey);
+            border-color: #d1d1d1;
+            color: #888;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .match-item.incorrect {
+            background-color: var(--error-red);
+            border-color: #ef4444;
+        }
+
+        .status-panel {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        #score-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .btn-reset {
+            background-color: var(--white);
+            color: var(--dark-grey);
+            border: 2px solid var(--primary-orange);
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .btn-reset:hover {
+            background-color: var(--primary-orange);
+            color: var(--white);
+        }
+
+        @media (max-width: 600px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="activity-card">
+    <h2>IAD Framework Matching</h2>
+    <hr class="brand-divider">
+    <p class="instructions">Select a concept on the left, then select its corresponding definition on the right.</p>
+
+    <div class="game-area">
+        <div class="column" id="terms-column"></div>
+        <div class="column" id="defs-column"></div>
+    </div>
+
+    <div class="status-panel">
+        <div id="score-text">Matches Found: 0 / 7</div>
+        <button class="btn-reset" id="reset-btn" onclick="initGame()">Try Again ↺</button>
+    </div>
+</div>
+
+<script>
+    const pairs = [
+        { term: "Action Arena", def: "The specific context where individuals interact, make decisions, and take actions." },
+        { term: "Rules", def: "The formal and informal rules, norms, and strategies that guide behavior and decision-making." },
+        { term: "Community Attributes", def: "The characteristics of the community influencing the action situation, including social norms, values, and networks." },
+        { term: "Physical & Material Attributes", def: "The resources available and the physical context in which the interactions take place." },
+        { term: "Outcomes", def: "The results of the interactions, including both intended and unintended consequences." },
+        { term: "Patterns of Interaction", def: "The recurring behaviors and sequences of actions that emerge as individuals engage in decision-making." },
+        { term: "Evaluative Criteria", def: "The standards used to assess the quality of outcomes, such as efficiency, equity, and sustainability." }
+    ];
+
+    let selectedTerm = null;
+    let selectedDef = null;
+    let matches = 0;
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function initGame() {
+        const termsCol = document.getElementById('terms-column');
+        const defsCol = document.getElementById('defs-column');
+        const scoreText = document.getElementById('score-text');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Reset state
+        termsCol.innerHTML = '';
+        defsCol.innerHTML = '';
+        matches = 0;
+        selectedTerm = null;
+        selectedDef = null;
+        scoreText.innerText = `Matches Found: 0 / ${pairs.length}`;
+        resetBtn.style.display = 'none';
+
+        const shuffledTerms = shuffle([...pairs]);
+        const shuffledDefs = shuffle([...pairs]);
+
+        shuffledTerms.forEach(pair => {
+            const el = document.createElement('div');
+            el.className = 'match-item';
+            el.innerText = pair.term;
+            el.dataset.value = pair.term;
+            el.onclick = () => handleSelection(el, 'term');
+            termsCol.appendChild(el);
+        });
+
+        shuffledDefs.forEach(pair => {
+            const el = document.createElement('div');
+            el.className = 'match-item';
+            el.innerText = pair.def;
+            el.dataset.value = pair.term;
+            el.onclick = () => handleSelection(el, 'def');
+            defsCol.appendChild(el);
+        });
+    }
+
+    function handleSelection(el, type) {
+        if (el.classList.contains('correct')) return;
+
+        if (type === 'term') {
+            if (selectedTerm) selectedTerm.classList.remove('selected');
+            selectedTerm = el;
+        } else {
+            if (selectedDef) selectedDef.classList.remove('selected');
+            selectedDef = el;
+        }
+
+        el.classList.add('selected');
+
+        if (selectedTerm && selectedDef) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        if (selectedTerm.dataset.value === selectedDef.dataset.value) {
+            selectedTerm.classList.add('correct');
+            selectedDef.classList.add('correct');
+            selectedTerm.classList.remove('selected');
+            selectedDef.classList.remove('selected');
+            matches++;
+            selectedTerm = null;
+            selectedDef = null;
+
+            const scoreText = document.getElementById('score-text');
+            scoreText.innerText = `Matches Found: ${matches} / ${pairs.length}`;
+
+            if (matches === pairs.length) {
+                scoreText.innerText = `🎉 ${pairs.length}/${pairs.length} Correct! Excellent work!`;
+                document.getElementById('reset-btn').style.display = 'inline-block';
+            }
+        } else {
+            const t = selectedTerm;
+            const d = selectedDef;
+            t.classList.add('incorrect');
+            d.classList.add('incorrect');
+            selectedTerm = null;
+            selectedDef = null;
+
+            setTimeout(() => {
+                t.classList.remove('incorrect', 'selected');
+                d.classList.remove('incorrect', 'selected');
+            }, 600);
+        }
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
