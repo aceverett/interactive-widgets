@@ -57,6 +57,7 @@ If you have forked this repository and enabled GitHub Pages, your activities are
         title="Interactive Matching Activity" 
         allow="clipboard-write"></iframe>
 
+```
 ### Method 2: Copy Raw HTML or Upload Files Locally
 If your institution’s security policy limits external iframes, or if you want to make deep modifications to terms, definitions, and styling:
 
